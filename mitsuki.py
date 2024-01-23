@@ -13,7 +13,7 @@ with st.sidebar:
         replicate_api = st.secrets['REPLICATE_API_TOKEN']
     else:
         replicate_api = st.text_input('Enter Replicate API token:', type='password')
-        if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
+        if not (replicate_api.startswith('r8_') and len(replicate_api) == 40):
             st.warning('Please enter your credentials!', icon='⚠️')
         else:
             st.success('Proceed to entering your prompt message!', icon='👉')
@@ -30,54 +30,30 @@ with st.sidebar:
     max_length = st.sidebar.slider('max_length', min_value=32, max_value=128, value=120, step=8)
 
 # Store LLM generated responses
-if "messages" not in st.session_state.keys():
+if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 
 # Display or clear chat messages
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.write(message["content"])
+    st.write(message["content"])
 
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
-st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
-# Function for generating Mitsuki's response
-def generate_mitsuki_response(prompt_input):
-    string_dialogue = ""
-
-    for dict_message in st.session_state.messages:
-        if dict_message["role"] == "user":
-            string_dialogue += "User: " + dict_message["content"] + "\n\n"
-        else:
-            string_dialogue += "Mitsuki: " + dict_message["content"] + "\n\n"
-    
-    output = replicate.run(llm,
-                           input={"prompt": f"{string_dialogue} User: {prompt_input}\n\nMitsuki: ",
-                                  "temperature": temperature, "top_p": top_p, "max_length": max_length,
-                                  "repetition_penalty": 1})
-    return output
+if st.sidebar.button('Clear Chat History'):
+    clear_chat_history()
 
 # User-provided prompt
-prompt = st.chat_input(disabled=not replicate_api)
-if prompt:
+prompt = st.text_input('User Prompt', key='user_prompt')
+if st.button('Submit'):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.write(prompt)
-
 
 # Generate a new response if the last message is not from the assistant
 if st.session_state.messages[-1]["role"] != "assistant":
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            print("Prompt:", prompt)  # Add this line to print the prompt
-            response = generate_mitsuki_response(prompt)
-            print("Response:", response)  # Add this line to print the response
-            placeholder = st.empty()
-            full_response = ''
-            for item in response:
-                full_response += item
-                placeholder.markdown(full_response)
-            placeholder.markdown(full_response)
-    message = {"role": "assistant", "content": full_response}
-    st.session_state.messages.append(message)
+    with st.spinner("Thinking..."):
+        response = replicate.run(llm,
+                                  input={"prompt": f"{prompt}\n\nMitsuki:",
+                                         "temperature": temperature, "top_p": top_p, "max_length": max_length,
+                                         "repetition_penalty": 1})
+    st.session_state.messages.append({"role": "assistant", "content": response})
+    st.write(response)
