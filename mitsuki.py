@@ -59,11 +59,15 @@ def generate_mitsuki_response(prompt_input):
 
     # Extract only the Mitsuki's response
     mitsuki_response = [item["content"] for item in output if item["role"] == "Mitsuki"]
-    
-    # Join the response into a single string
-    full_response = ' '.join(mitsuki_response)
+
+    # Decode the response content
+    decoded_response = [response.encode("latin1").decode("utf-8") for response in mitsuki_response]
+
+    # Join the decoded response into a single string
+    full_response = ' '.join(decoded_response)
 
     return full_response
+
 
 
 
