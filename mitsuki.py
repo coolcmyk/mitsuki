@@ -64,11 +64,13 @@ if prompt := st.chat_input(disabled=not replicate_api):
     with st.chat_message("user"):
         st.write(prompt)
 
-# Generate a new response if last message is not from assistant
+# Generate a new response if the last message is not from the assistant
 if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
+            print("Prompt:", prompt)  # Add this line to print the prompt
             response = generate_mitsuki_response(prompt)
+            print("Response:", response)  # Add this line to print the response
             placeholder = st.empty()
             full_response = ''
             for item in response:
