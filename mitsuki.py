@@ -12,7 +12,7 @@ with st.sidebar:
         replicate_api = st.secrets['REPLICATE_API_TOKEN']
     else:
         replicate_api = st.text_input('Enter Replicate API token:', type='password')
-        if not (replicate_api.startswith('r8_') and len(replicate_api)==40):
+        if not (replicate_api.startswith('r8_') and len(replicate_api) == 40):
             st.warning('Please enter your credentials!', icon='⚠️')
         else:
             st.success('Proceed to entering your prompt message!', icon='👉')
@@ -39,19 +39,23 @@ for message in st.session_state.messages:
 
 def clear_chat_history():
     st.session_state.messages = [{"role": "Mitsuki", "content": "How may I assist you today?"}]
-st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
-# Function for generating LLaMA2 response. Refactored from https://github.com/a16z-infra/llama2-chatbot
-def generate_Mitsuki_response(prompt_input):
+if st.sidebar.button('Clear Chat History'):
+    clear_chat_history()
+
+# Function for generating Mitsuki's response
+def generate_mitsuki_response(prompt_input):
     string_dialogue = "You are Mitsuki. You do not respond as 'User' or pretend to be 'User'."
     for dict_message in st.session_state.messages:
         if dict_message["role"] == "user":
             string_dialogue += "User: " + dict_message["content"] + "\n\n"
         else:
-            string_dialogue += "Assistant: " + dict_message["content"] + "\n\n"
-    output = replicate.run('a16z-infra/llama13b-v2-chat:df7690f1994d94e96ad9d568eac121aecf50684a0b0963b25a41cc40061269e5', 
-                           input={"prompt": f"{string_dialogue} {prompt_input} Mitsuki: ",
-                                  "temperature":temperature, "top_p":top_p, "max_length":max_length, "repetition_penalty":1})
+            string_dialogue += "Mitsuki: " + dict_message["content"] + "\n\n"
+    
+    output = replicate.run(llm,
+                           input={"prompt": f"{string_dialogue} User: {prompt_input}\n\nMitsuki: ",
+                                  "temperature": temperature, "top_p": top_p, "max_length": max_length,
+                                  "repetition_penalty": 1})
     return output
 
 # User-provided prompt
@@ -60,11 +64,11 @@ if prompt := st.chat_input(disabled=not replicate_api):
     with st.chat_message("user"):
         st.write(prompt)
 
-# Generate a new response if last message is not from assistant
+# Generate a new response if the last message is not from Mitsuki
 if st.session_state.messages[-1]["role"] != "Mitsuki":
     with st.chat_message("Mitsuki"):
         with st.spinner("Thinking..."):
-            response = generate_Mitsuki_response(prompt)
+            response = generate_mitsuki_response(prompt)
             placeholder = st.empty()
             full_response = ''
             for item in response:
