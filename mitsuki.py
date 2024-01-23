@@ -51,12 +51,17 @@ def generate_mitsuki_response(prompt_input):
             string_dialogue += "User: " + dict_message["content"] + "\n\n"
         else:
             string_dialogue += "Mitsuki: " + dict_message["content"] + "\n\n"
-    
+
     output = replicate.run(llm,
                            input={"prompt": f"{string_dialogue} User: {prompt_input}\n\nMitsuki: ",
                                   "temperature": temperature, "top_p": top_p, "max_length": max_length,
                                   "repetition_penalty": 1})
-    return output
+
+    # Extract only the Mitsuki's response
+    mitsuki_response = [item["content"] for item in output if item["role"] == "Mitsuki"]
+
+    return mitsuki_response
+
 
 # User-provided prompt
 if prompt := st.chat_input(disabled=not replicate_api):
