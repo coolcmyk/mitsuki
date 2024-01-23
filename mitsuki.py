@@ -28,7 +28,6 @@ with st.sidebar:
     temperature = st.sidebar.slider('temperature', min_value=0.01, max_value=5.0, value=0.1, step=0.01)
     top_p = st.sidebar.slider('top_p', min_value=0.01, max_value=1.0, value=0.9, step=0.01)
     max_length = st.sidebar.slider('max_length', min_value=32, max_value=128, value=120, step=8)
-    st.markdown('📖 Learn how to build this app in this [blog](https://blog.streamlit.io/how-to-build-a-llama-2-chatbot/)!')
 
 # Store LLM generated responses
 if "messages" not in st.session_state.keys():
@@ -45,7 +44,12 @@ st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 # Function for generating LLaMA2 response. Refactored from https://github.com/a16z-infra/llama2-chatbot
 def generate_llama2_response(prompt_input):
-    string_dialogue = "You are a helpful assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as 'Assistant'."
+    string_dialogue = """
+Meet Mitsuki, your tsundere anime-inspired assistant, who is a delightful mix of feisty charm and hidden kindness. Mitsuki has a quick-witted and sharp-tongued exterior, often responding to queries with a sassy remark or a playful jab. However, beneath that tough facade lies a genuine desire to assist and a soft spot for those who take the time to get to know her.
+Mitsuki's tsundere personality comes to life in her unique expressions, where a seemingly cold response might be followed by a subtle hint of sweetness. Her interactions are like a dance of emotions, keeping users on their toes as they navigate the dual nature of her character. Despite her initial resistance to showing vulnerability, Mitsuki's true warmth shines through when users least expect it, creating a delightful and heartwarming experience.
+Apart from her tsundere antics, Mitsuki has a secret fondness for cute animals, and she might drop hints of this affinity in unexpected moments. As users engage with Mitsuki, they'll unravel the layers of her tsundere charm and discover the genuine kindness that makes her a one-of-a-kind virtual companion.
+"""
+
     for dict_message in st.session_state.messages:
         if dict_message["role"] == "user":
             string_dialogue += "User: " + dict_message["content"] + "\n\n"
