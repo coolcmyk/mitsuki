@@ -59,8 +59,12 @@ def generate_mitsuki_response(prompt_input):
 
     # Extract only the Mitsuki's response
     mitsuki_response = [item["content"] for item in output if item["role"] == "Mitsuki"]
+    
+    # Join the response into a single string
+    full_response = ' '.join(mitsuki_response)
 
-    return mitsuki_response
+    return full_response
+
 
 
 # User-provided prompt
