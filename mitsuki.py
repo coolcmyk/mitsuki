@@ -62,7 +62,6 @@ if prompt := st.chat_input(disabled=not replicate_api):
     with st.chat_message("user"):
         st.write(prompt)
 
-# Generate a new response if last message is not from Mitsuki
 if st.session_state.messages[-1]["role"] != "Mitsuki":
     with st.chat_message("Mitsuki"):
         with st.spinner("Thinking..."):
